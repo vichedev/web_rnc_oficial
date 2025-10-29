@@ -1,9 +1,9 @@
 services:
-  web-web-RNC-Oficial:
+  web-rnc-oficial:  # Cambiado a minúsculas
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: web-RNC-Oficial
+    container_name: web-rnc-oficial  # Cambiado a minúsculas
     ports:
       - "8484:80"
     networks:
