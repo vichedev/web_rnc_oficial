@@ -1,0 +1,139 @@
+/* ESTILOS EXCLUSIVOS DEL COMPONENTE HERO */
+.layers {
+  perspective: 1000px;
+  overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.layers__container {
+  height: 100vh;
+  min-height: 500px;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--move-y)) rotateY(var(--move-x));
+  will-change: transform;
+  transition: transform var(--transition);
+  backface-visibility: hidden;
+}
+
+.layers__item {
+  position: absolute;
+  inset: -5vw;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.layer_1 {
+  transform: translateZ(-55px) scale(1.06);
+}
+
+.layer_2 {
+  transform: translateZ(80px) scale(0.88);
+}
+
+.layer_3 {
+  transform: translateZ(180px) scale(0.8);
+}
+
+.layer_4 {
+  transform: translateZ(190px) scale(0.9);
+}
+
+.layer_5 {
+  transform: translateZ(450px) scale(0.9);
+  background-image: url(/images/layer-5.webp);
+  background-size: 40%;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.layer_6 {
+  transform: translateZ(380px);
+}
+
+.heroContent {
+  font-size: calc(var(--index) * 2.5);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: calc(var(--index) * -0.1);
+  line-height: 1.2;
+  margin-top: calc(var(--index) * 4);
+}
+
+.titleRnc {
+  color: #fff;
+  font-family: kamerik-3d;
+  font-size: calc(var(--index) * 3.5);
+  padding-top: 100px;
+  white-space: nowrap;
+  margin-bottom: calc(var(--index) * 1);
+}
+
+.heroContent span {
+  display: inline;
+}
+
+.heroContentP {
+  color: #fff;
+  text-transform: none;
+  font-family: kamerik-3d;
+  letter-spacing: normal;
+  font-size: calc(var(--index) * 0.9);
+  line-height: 1.5;
+  margin-top: calc(var(--index) * 1);
+}
+
+.pointerEventsNone {
+  pointer-events: none;
+}
+
+/* ========== RESPONSIVE MEJORADO PARA MÓVIL ========== */
+@media (max-width: 768px) {
+  .heroContent {
+    display: none;
+    /* OCULTAR LETRAS EN MÓVIL */
+  }
+
+  /* CAPA 5 OPTIMIZADA PARA MÓVIL */
+  .layer_5 {
+    background-size: 70% !important;
+    background-position: center 70% !important;
+    opacity: 0.9;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroContent {
+    display: none;
+    /* OCULTAR LETRAS EN MÓVILES PEQUEÑOS */
+  }
+
+  /* CAPA 5 EN MÓVILES PEQUEÑOS */
+  .layer_5 {
+    background-size: 270% !important;
+    background-position: center 100% !important;
+    opacity: 0.85;
+  }
+
+  .layers__item {
+    inset: -8vw;
+  }
+}
+
+/* Para tablets en orientación vertical */
+@media (max-width: 1024px) and (min-width: 769px) and (orientation: portrait) {
+  .heroContent {
+    display: none;
+    /* OCULTAR LETRAS EN TABLETS VERTICAL */
+  }
+
+  .layer_5 {
+    background-size: 65% !important;
+    background-position: center 65% !important;
+  }
+}

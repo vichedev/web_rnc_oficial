@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+/* ESTILOS GLOBALES MÍNIMOS - SIN AFECTAR COMPONENTES */
+body {
+  background-color: #000;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  
+  /* Scrollbar personalizada pero funcional */
+  scrollbar-width: thin;
+  scrollbar-color: #f97316 #1f2937;
+}
+
+/* Scrollbar personalizada para Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #f97316 0%, #fb923c 100%);
+  border-radius: 10px;
+  border: 1px solid #1f2937;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #ea580c 0%, #f97316 100%);
+}
+
+::-webkit-scrollbar-corner {
+  background: #1f2937;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Variables CSS GLOBALES */
+:root {
+  --index: calc(1vw + 1vh);
+  --transition: 1.5s cubic-bezier(.05, .5, 0, 1);
+}
+
+/* Fuentes globales */
+@font-face {
+  font-family: kamerik-3d;
+  src: url(/fonts/kamerik205-heavy.woff2);
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: merriweather-italic-3d;
+  src: url(/fonts/merriweather-regular-italic.woff2);
+}
+
+/* Smooth scrolling para mejor experiencia */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mejora de rendimiento para elementos que se animan */
+.loader-logo,
+.loader-spinner {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}

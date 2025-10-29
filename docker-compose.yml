@@ -1,0 +1,15 @@
+services:
+  web-web-RNC-Oficial:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: web-RNC-Oficial
+    ports:
+      - "8484:80"
+    networks:
+      - webnet
+    restart: always
+
+networks:
+  webnet:
+    driver: bridge

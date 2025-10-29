@@ -1,0 +1,21 @@
+{
+  "name": "Red Nueva Conexión",
+  "short_name": "RNC",
+  "description": "Conectándote al mundo con la mejor tecnología",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#f97316",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/logo.png", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
