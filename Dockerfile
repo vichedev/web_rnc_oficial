@@ -1,5 +1,5 @@
-# Etapa de build
-FROM node:18 AS build
+# Etapa de build - CAMBIAR A NODE 20
+FROM node:20-alpine AS build
 
 WORKDIR /app
 COPY package*.json ./
@@ -8,9 +8,9 @@ RUN npm install
 # Copiar código fuente
 COPY . .
 
-# Dar permisos de ejecución al binario de esbuild
-RUN chmod +x node_modules/@esbuild/linux-x64/bin/esbuild
-RUN chmod +x ./node_modules/.bin/vite
+# REMOVER estos comandos chmod (no son necesarios)
+# RUN chmod +x node_modules/@esbuild/linux-x64/bin/esbuild
+# RUN chmod +x ./node_modules/.bin/vite
 
 # Compilar con Vite
 RUN npx vite build
@@ -18,7 +18,7 @@ RUN npx vite build
 # Etapa de producción
 FROM nginx:alpine
 
-# Crear usuario no-root (cambiado a minúsculas)
+# Crear usuario no-root
 RUN addgroup -g 1001 web-rnc-oficial && \
     adduser -D -u 1001 -G web-rnc-oficial -s /bin/sh -h /home/web-rnc-oficial web-rnc-oficial
 
