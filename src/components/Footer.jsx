@@ -254,42 +254,94 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="border-t border-orange-700 pt-8">
-          <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
-            {/* Copyright */}
+        {/* Enhanced Footer */}
+        <div className="border-t border-orange-600/50 pt-8 pb-6">
+          {/* Main Footer Content */}
+          <div className="flex flex-col lg:flex-row justify-between items-center space-y-6 lg:space-y-0 mb-6">
+            {/* Copyright Section */}
             <div className="text-center lg:text-left">
-              <p className="text-orange-200">
-                © {currentYear}{" "}
-                <span className="text-orange-400 font-bold">
+              <div className="flex items-center justify-center lg:justify-start space-x-2 mb-2">
+                <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                <p className="text-orange-100 font-semibold text-lg">
                   Red Nueva Conexión
-                </span>
-                . Todos los derechos reservados.
+                </p>
+              </div>
+              <p className="text-orange-200/90 text-sm">
+                © {currentYear} Todos los derechos reservados.
               </p>
             </div>
 
-            {/* Regulatory Info */}
-            <div className="text-center">
-              <p className="text-orange-200 text-sm">
-                Cumpliendo con los requisitos de la Agencia de Regulación y
-                Control de las Telecomunicaciones (ARCOTEL) y el Ministerio de
-                Telecomunicaciones (MINTEL).
+            {/* Regulatory Badge */}
+            <div className="bg-orange-500/20 backdrop-blur-sm border border-orange-500/30 rounded-xl px-4 py-3">
+              <div className="text-center">
+                <div className="flex items-center justify-center space-x-2 mb-1">
+                  <svg
+                    className="w-4 h-4 text-orange-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                    />
+                  </svg>
+                  <span className="text-orange-200 font-medium text-sm">
+                    REGULADO POR
+                  </span>
+                </div>
+                <p className="text-orange-200/80 text-xs leading-tight">
+                  ARCOTEL • MINTEL
+                </p>
+              </div>
+            </div>
+
+            {/* Contact Quick Info */}
+            <div className="text-center lg:text-right">
+              <p className="text-orange-100 font-medium mb-1">
+                ¿Necesitas ayuda?
               </p>
+              <p className="text-orange-200/90 text-sm">+593 4375 5230</p>
             </div>
           </div>
-        </div>
 
-        {/* Decorative Elements */}
-        <div className="mt-8 flex justify-center space-x-2">
-          <div className="w-3 h-3 bg-orange-500 rounded-full animate-pulse"></div>
-          <div
-            className="w-3 h-3 bg-orange-400 rounded-full animate-pulse"
-            style={{ animationDelay: "0.2s" }}
-          ></div>
-          <div
-            className="w-3 h-3 bg-orange-300 rounded-full animate-pulse"
-            style={{ animationDelay: "0.4s" }}
-          ></div>
+          {/* Regulatory Detailed Info */}
+          <div className="bg-orange-500/10 backdrop-blur-sm rounded-lg p-4 mb-4 border border-orange-500/20">
+            <p className="text-orange-200 text-center text-sm leading-relaxed">
+              Cumpliendo con todos los requisitos establecidos por la
+              <span className="text-orange-300 font-semibold">
+                {" "}
+                Agencia de Regulación y Control de las Telecomunicaciones
+                (ARCOTEL){" "}
+              </span>
+              y el
+              <span className="text-orange-300 font-semibold">
+                {" "}
+                Ministerio de Telecomunicaciones (MINTEL)
+              </span>
+              para la prestación de servicios de telecomunicaciones en Ecuador.
+            </p>
+          </div>
+
+          {/* Powered By Section */}
+          <div className="flex flex-col items-center space-y-3">
+            <div className="w-16 h-px bg-gradient-to-r from-transparent via-orange-400/50 to-transparent"></div>
+            <div className="flex items-center space-x-3">
+              <span className="text-orange-200/70 text-xs font-light">
+                DESARROLLADO POR
+              </span>
+              <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 border border-white/20">
+                <span className="text-white font-bold text-sm tracking-wide">
+                  INIGUALITYSOFT
+                </span>
+              </div>
+              <span className="text-orange-200/70 text-xs font-light">
+                TECHNOLOGY
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

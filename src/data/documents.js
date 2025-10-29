@@ -38,7 +38,7 @@ const documentosData = [
   {
     id: 5,
     imageUrl: "/Documents/img_icon/icon_docu.png",
-    title: "Parámetros de Calidad Gobravcorp",
+    title: "Parámetros de Calidad RNC",
     description: "Parámetros de calidad establecidos por Gobravcorp",
     pdfUrl: "/Documents/5PARAMETROS DE CALIDAD_GOBRAVCORPSA.pdf",
     categoria: "Calidad",
