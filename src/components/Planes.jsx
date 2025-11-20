@@ -11,7 +11,7 @@ const Planes = () => {
       descripcion: "Ideal para estudiantes y navegación básica",
       precio: "$20.00",
       incluye: "Incluye Impuestos",
-      imagen: "/images/refe.jpg",
+      imagen: "/images/planes/plan1.png",
       color: "blue",
       popular: false,
     },
@@ -23,7 +23,7 @@ const Planes = () => {
       descripcion: "Perfecto para teletrabajo y streaming",
       precio: "$35.00",
       incluye: "Incluye Impuestos",
-      imagen: "/images/refe.jpg",
+      imagen: "/images/planes/plan2.png",
       color: "green",
       popular: true,
     },
@@ -35,7 +35,7 @@ const Planes = () => {
       descripcion: "Excelente para gaming y hogares conectados",
       precio: "$50.00",
       incluye: "Incluye Impuestos",
-      imagen: "/images/refe.jpg",
+      imagen: "/images/planes/plan3.png",
       color: "purple",
       popular: false,
     },
@@ -47,7 +47,7 @@ const Planes = () => {
       descripcion: "Soluciones empresariales para tu oficina",
       precio: "$300.00",
       incluye: "Incluye Impuestos",
-      imagen: "/images/refe.jpg",
+      imagen: "/images/planes/plan4.png",
       color: "orange",
       popular: false,
     },
@@ -59,7 +59,7 @@ const Planes = () => {
       descripcion: "Pensado para nuestros adultos mayores",
       precio: "$10.00",
       incluye: "Incluye Impuestos *Aplica restricciones",
-      imagen: "/images/refe.jpg",
+      imagen: "/images/planes/plan5.png",
       color: "teal",
       popular: false,
     },
@@ -71,7 +71,7 @@ const Planes = () => {
       descripcion: "Accesibilidad digital para todos",
       precio: "$15.00",
       incluye: "Incluye Impuestos *Aplica restricciones",
-      imagen: "/images/refe.jpg",
+      imagen: "/images/planes/plan6.png",
       color: "indigo",
       popular: false,
     },
@@ -378,11 +378,6 @@ const Planes = () => {
               alt={selectedImage.alt}
               className="w-full h-auto max-h-[80vh] object-contain rounded-xl shadow-2xl"
             />
-            
-            {/* Título mejorado */}
-            <div className="absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-sm text-white p-4 rounded-xl">
-              <h3 className="text-lg font-semibold">{selectedImage.title}</h3>
-            </div>
           </div>
         </div>
       )}
