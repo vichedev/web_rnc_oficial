@@ -470,26 +470,6 @@ const Documentos = () => {
           </div>
         )}
 
-        {/* Sección de ayuda mejorada */}
-        <div className="mt-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-8 text-center text-white relative overflow-hidden">
-          {/* Elementos decorativos de fondo */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full -ml-12 -mb-12"></div>
-
-          <div className="relative z-10">
-            <h3 className="text-2xl font-bold mb-4">
-              ¿Necesitas ayuda con algún documento?
-            </h3>
-            <p className="text-blue-100 mb-6 max-w-xl mx-auto text-lg leading-relaxed">
-              Nuestro equipo de soporte está disponible para resolver tus dudas
-              sobre documentación legal, técnica o cualquier consulta
-              relacionada.
-            </p>
-            <button className="bg-white text-blue-600 hover:bg-blue-50 font-semibold py-3 px-8 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
-              Contactar Soporte
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Estilos para la animación de partículas */}

@@ -3,7 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import { motion, useInView, useAnimation } from "framer-motion";
 import {
   FaRocket,
-  FaHeadset,
   FaChartLine,
   FaShieldAlt,
   FaAward,
@@ -25,7 +24,6 @@ const Nosotros = () => {
   const [animatedStats, setAnimatedStats] = useState({
     clients: 0,
     uptime: 0,
-    support: 0,
     latency: 0,
   });
 
@@ -97,7 +95,6 @@ const Nosotros = () => {
         setAnimatedStats({
           clients,
           uptime: parseFloat(uptime.toFixed(1)),
-          support: "24/7",
           latency: "15ms",
         });
 
@@ -284,13 +281,6 @@ const Nosotros = () => {
 
   // Servicios adicionales
   const services = [
-    {
-      icon: <FaHeadset className="w-7 h-7" />,
-      title: "Soporte Premium 24/7",
-      description:
-        "Expertos disponibles las 24 horas con tiempo de respuesta promedio menor a 15 minutos",
-      highlight: "< 15min respuesta",
-    },
     {
       icon: <FaAward className="w-7 h-7" />,
       title: "Garantía Certificada",
@@ -509,7 +499,7 @@ const Nosotros = () => {
               initial="hidden"
               animate={servicesControls}
               variants={containerVariants}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
             >
               {services.map((service, index) => (
                 <motion.div
@@ -699,7 +689,6 @@ const Nosotros = () => {
                 {[
                   "Sin costos de instalación",
                   "Garantía 30 días",
-                  "Soporte 24/7",
                   "Equipos incluidos",
                 ].map((item, index) => (
                   <motion.div
@@ -723,7 +712,7 @@ const Nosotros = () => {
               initial="hidden"
               animate={statsControls}
               variants={containerVariants}
-              className="grid grid-cols-2 md:grid-cols-4 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-6"
             >
               {[
                 {
@@ -739,13 +728,6 @@ const Nosotros = () => {
                   icon: <FaChartLine className="w-6 h-6" />,
                   color: "text-green-400",
                   description: "Máxima estabilidad",
-                },
-                {
-                  value: animatedStats.support,
-                  label: "Soporte Técnico",
-                  icon: <FaHeadset className="w-6 h-6" />,
-                  color: "text-blue-400",
-                  description: "Disponibilidad total",
                 },
                 {
                   value: animatedStats.latency,

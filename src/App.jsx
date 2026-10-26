@@ -11,6 +11,7 @@ import Nosotros from "./components/Nosotros";
 import Planes from "./components/Planes";
 import Documentos from "./components/Documentos";
 import Footer from "./components/Footer";
+import CookieConsent from "./components/CookieConsent";
 import "./styles/globals.css";
 
 // Componente que maneja el scroll automático
@@ -42,6 +43,7 @@ function MainLayout({ children }) {
       <Navbar />
       <main>{children}</main>
       <Footer />
+      <CookieConsent />
     </>
   );
 }

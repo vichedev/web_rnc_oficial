@@ -43,7 +43,7 @@ const Planes = () => {
       id: 4,
       nombre: "PLAN CORPORATIVO",
       velocidad: "200 MB",
-      caracteristicas: ["Simétrico", "WIFI Incluido", "Soporte prioritario"],
+      caracteristicas: ["Simétrico", "WIFI Incluido", "Alta estabilidad"],
       descripcion: "Soluciones empresariales para tu oficina",
       precio: "$300.00",
       incluye: "Incluye Impuestos",
@@ -208,7 +208,7 @@ const Planes = () => {
           <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto mb-8 rounded-full"></div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Descubre la perfecta conexión para tu hogar o negocio. Velocidad
-            simétrica garantizada y soporte técnico especializado.
+            simétrica garantizada.
           </p>
         </div>
 

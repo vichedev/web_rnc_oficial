@@ -7,7 +7,9 @@ import {
   FaPhone,
   FaMapMarkerAlt,
   FaTachometerAlt,
+  FaCookieBite,
 } from "react-icons/fa";
+import { openCookieSettings } from "../utils/cookies";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -248,7 +250,6 @@ const Footer = () => {
               <div className="text-sm text-orange-100 space-y-1">
                 <div>Lunes a Viernes: 8:00 - 18:00</div>
                 <div>Sábados: 9:00 - 13:00</div>
-                <div>Soporte 24/7 para emergencias</div>
               </div>
             </div>
           </div>
@@ -269,6 +270,14 @@ const Footer = () => {
               <p className="text-orange-200/90 text-sm">
                 © {currentYear} Todos los derechos reservados.
               </p>
+              <button
+                type="button"
+                onClick={openCookieSettings}
+                className="mt-3 inline-flex items-center gap-2 rounded-full border border-orange-400/30 bg-white/5 px-4 py-1.5 text-xs font-semibold text-orange-200 transition-colors hover:bg-orange-500/20 hover:text-white"
+              >
+                <FaCookieBite className="h-3.5 w-3.5" />
+                Preferencias de cookies
+              </button>
             </div>
 
             {/* Regulatory Badge */}
