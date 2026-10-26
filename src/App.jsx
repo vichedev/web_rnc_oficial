@@ -10,6 +10,10 @@ import Hero from "./components/Hero";
 import Nosotros from "./components/Nosotros";
 import Planes from "./components/Planes";
 import Documentos from "./components/Documentos";
+import SpeedCalc from "./components/SpeedCalc";
+import Proceso from "./components/Proceso";
+import Cobertura from "./components/Cobertura";
+import FAQ from "./components/FAQ";
 import Footer from "./components/Footer";
 import CookieConsent from "./components/CookieConsent";
 import "./styles/globals.css";
@@ -31,11 +35,27 @@ function ScrollToTop() {
 
 // Componente Home que agrupa todo el contenido de la página principal
 function Home() {
+  const { state } = useLocation();
+
+  // Si venimos de otra página con una sección destino (ej. "Cobertura"), bajar hasta ella
+  useEffect(() => {
+    if (!state?.scrollTo) return;
+    const t = setTimeout(() => {
+      ScrollTrigger.refresh();
+      document.getElementById(state.scrollTo)?.scrollIntoView({ behavior: "smooth" });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [state]);
+
   return (
     <>
       <Hero />
       <Nosotros overlap />
       <Planes />
+      <SpeedCalc />
+      <Proceso />
+      <Cobertura />
+      <FAQ />
     </>
   );
 }
@@ -80,6 +100,8 @@ function App() {
             element={
               <MainLayout>
                 <Nosotros />
+                <Proceso />
+                <FAQ />
               </MainLayout>
             }
           />
@@ -88,6 +110,8 @@ function App() {
             element={
               <MainLayout>
                 <Planes />
+                <SpeedCalc />
+                <FAQ />
               </MainLayout>
             }
           />

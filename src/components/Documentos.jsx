@@ -1,11 +1,9 @@
 import { useMemo, useRef, useState } from "react";
-import { FaSearch, FaArrowRight, FaDownload, FaTimes } from "react-icons/fa";
+import { FaSearch, FaArrowRight, FaDownload, FaTimes, FaFolderOpen, FaFilePdf, FaBalanceScale, FaShieldAlt } from "react-icons/fa";
 import documentosData from "../data/documents";
 import { gsap, useGSAP, prefersReducedMotion } from "../lib/gsap";
 import useReveal from "../hooks/useReveal";
-import SplitWords from "./ui/SplitWords";
-import { plain } from "../utils/text";
-import Eyebrow from "./ui/Eyebrow";
+import SectionTitle from "./ui/SectionTitle";
 
 const normalize = (text) =>
   text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -60,25 +58,43 @@ const Documentos = () => {
 
   return (
     <section id="documentos" ref={scope} className="min-h-screen bg-paper text-ink">
-      <div className="mx-auto max-w-7xl px-5 md:px-8 pt-32 md:pt-40 pb-24 md:pb-32">
-        <Eyebrow index="04">Transparencia</Eyebrow>
-
-        <div className="mt-10 grid gap-8 lg:grid-cols-12 lg:items-end">
-          <h1
-            data-split
-            aria-label={plain(title)}
-            className="font-display text-5xl sm:text-6xl lg:text-8xl font-semibold leading-[0.95] lg:col-span-8"
-          >
-            <SplitWords text={title} />
-          </h1>
-          <p data-reveal className="text-lg leading-relaxed text-stone-600 lg:col-span-4">
-            Toda nuestra documentación legal, normativa y técnica en un solo
-            lugar. Consulta o descarga lo que necesites.
-          </p>
+      {/* Cabecera */}
+      <div className="relative overflow-hidden bg-navy text-white">
+        <div className="pointer-events-none absolute inset-0 bg-tech-grid [mask-image:radial-gradient(ellipse_at_top,black,transparent_75%)]" />
+        <div className="pointer-events-none absolute -right-32 -top-32 h-[26rem] w-[26rem] rounded-full bg-brand/35 blur-[130px]" />
+        <div className="pointer-events-none absolute -left-32 bottom-0 h-72 w-72 rounded-full bg-accent/20 blur-[110px]" />
+        <div className="relative mx-auto grid max-w-7xl gap-10 px-5 pt-36 pb-20 md:px-8 md:pt-44 lg:grid-cols-12 lg:items-end">
+          <SectionTitle
+            dark
+            as="h1"
+            eyebrow="Transparencia"
+            icon={FaFolderOpen}
+            title={title}
+            subtitle="Toda nuestra documentación legal, normativa y técnica en un solo lugar. Consulta o descarga lo que necesites."
+            className="lg:col-span-8"
+          />
+          <ul data-reveal className="grid grid-cols-3 gap-3 lg:col-span-4">
+            {[
+              { icon: FaFilePdf, value: documentosData.length, label: "Documentos" },
+              { icon: FaBalanceScale, value: categorias.length - 1, label: "Categorías" },
+              { icon: FaShieldAlt, value: "ARCOTEL", label: "Normativa" },
+            ].map((s) => {
+              const Icon = s.icon;
+              return (
+                <li key={s.label} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+                  <Icon className="h-4 w-4 text-accent" />
+                  <p className="mt-3 font-display text-xl font-bold">{s.value}</p>
+                  <p className="text-xs text-blue-100/60">{s.label}</p>
+                </li>
+              );
+            })}
+          </ul>
         </div>
+      </div>
 
+      <div className="mx-auto max-w-7xl px-5 md:px-8 pb-24 md:pb-32">
         {/* Buscador y filtros */}
-        <div data-reveal className="mt-16 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+        <div data-reveal className="mt-12 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap gap-2">
             {categorias.map(([nombre, total]) => {
               const active = categoria === nombre;
@@ -89,12 +105,12 @@ const Documentos = () => {
                   aria-pressed={active}
                   className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${
                     active
-                      ? "border-ink bg-ink text-white"
+                      ? "border-transparent bg-gradient-to-r from-accent to-amber-500 text-white shadow-lg shadow-accent/25"
                       : "border-line bg-white text-stone-600 hover:border-stone-400 hover:text-ink"
                   }`}
                 >
                   {nombre}
-                  <span className={`text-xs ${active ? "text-accent" : "text-stone-400"}`}>{total}</span>
+                  <span className={`text-xs ${active ? "text-white/80" : "text-stone-400"}`}>{total}</span>
                 </button>
               );
             })}

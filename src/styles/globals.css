@@ -11,6 +11,11 @@
   --color-line: #e7e5e4;
   --color-accent: #f97316;
   --color-accent-dark: #ea580c;
+  /* Identidad RNC: azul marino profundo + azul eléctrico */
+  --color-navy: #050f2c;
+  --color-navy-2: #0a1d4f;
+  --color-brand: #1f6bff;
+  --color-brand-light: #5b9bff;
 }
 
 /* ESTILOS GLOBALES MÍNIMOS - SIN AFECTAR COMPONENTES */
@@ -158,4 +163,30 @@ body {
 @keyframes scroll-hint {
   0% { transform: translateY(-100%); }
   100% { transform: translateY(200%); }
+}
+
+/* Texto con degradado de marca */
+.text-gradient-brand {
+  background: linear-gradient(90deg, #f97316 0%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.text-gradient-blue {
+  background: linear-gradient(90deg, #5b9bff 0%, #a5c8ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Rejilla tecnológica de fondo */
+.bg-tech-grid {
+  background-image:
+    linear-gradient(rgba(91, 155, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91, 155, 255, 0.08) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+.bg-dots {
+  background-image: radial-gradient(rgba(12, 10, 9, 0.12) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
