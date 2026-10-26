@@ -1,781 +1,364 @@
+import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
-import { motion, useInView, useAnimation } from "framer-motion";
 import {
-  FaRocket,
-  FaChartLine,
-  FaShieldAlt,
+  FaArrowRight,
+  FaWhatsapp,
   FaAward,
-  FaUsers,
-  FaGlobeAmericas,
-  FaInfinity,
-  FaUserCheck,
   FaNetworkWired,
-  FaTachometerAlt,
-  FaCrown,
-  FaLightbulb,
-  FaHandshake,
-  FaClock,
+  FaBolt,
 } from "react-icons/fa";
+import { gsap, ScrollTrigger, useGSAP, prefersReducedMotion } from "../lib/gsap";
+import useReveal from "../hooks/useReveal";
+import SplitWords from "./ui/SplitWords";
+import { plain } from "../utils/text";
+import Magnetic from "./ui/Magnetic";
+import RollText from "./ui/RollText";
+import Eyebrow from "./ui/Eyebrow";
 
-const Nosotros = () => {
+const WHATSAPP_URL =
+  "https://api.whatsapp.com/send?phone=59343755230&text=Hola%20necesito%20más%20información%20sobre%20los%20planes";
+
+const stats = [
+  { value: 500, suffix: "+", label: "Clientes satisfechos" },
+  { value: 99.9, decimals: 1, suffix: "%", label: "Uptime garantizado" },
+  { value: 15, suffix: " ms", label: "Latencia promedio" },
+  { value: 50, suffix: "+", label: "Zonas cubiertas" },
+];
+
+const features = [
+  {
+    title: "Velocidad extrema",
+    description:
+      "Fibra óptica simétrica para streaming 4K, gaming competitivo y teletrabajo sin interrupciones.",
+    metric: "1 Gbps",
+    tags: ["Streaming 4K/8K", "Latencia mínima", "Descargas rápidas"],
+  },
+  {
+    title: "Data ilimitada",
+    description:
+      "Navega, descarga y transmite sin límites. Sin restricciones de consumo mensual ni reducción de velocidad.",
+    metric: "∞",
+    tags: ["Sin límites", "Sin throttling", "Todo incluido"],
+  },
+  {
+    title: "Seguridad avanzada",
+    description:
+      "Protección permanente con firewall integrado, antivirus y control parental incluido.",
+    metric: "100%",
+    tags: ["Firewall", "Antivirus", "Control parental"],
+  },
+  {
+    title: "Cobertura extendida",
+    description:
+      "Llegamos donde otros no llegan, con tecnología de última generación en zonas urbanas y rurales.",
+    metric: "50+",
+    tags: ["Zona urbana", "Zona rural", "Expansión continua"],
+  },
+];
+
+const services = [
+  {
+    icon: FaAward,
+    title: "Garantía certificada",
+    description:
+      "Calidad garantizada con certificación de satisfacción del cliente y reembolso de 30 días.",
+    highlight: "30 días",
+  },
+  {
+    icon: FaNetworkWired,
+    title: "Infraestructura sólida",
+    description:
+      "Tecnología de última generación con redundancia total y 99.9% de disponibilidad.",
+    highlight: "99.9% uptime",
+  },
+  {
+    icon: FaBolt,
+    title: "Instalación express",
+    description:
+      "Instalación en menos de 48 horas con técnicos certificados y equipos nuevos.",
+    highlight: "48 h",
+  },
+];
+
+const advantages = [
+  "Atención personalizada",
+  "Sin costos ocultos",
+  "Sin contratos forzosos",
+  "Equipos actualizados gratis",
+  "Asesoramiento especializado",
+  "Acceso prioritario a nuevas tecnologías",
+];
+
+const Marquee = () => {
+  const ref = useRef(null);
+
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      const loop = gsap.to("[data-marquee-track]", {
+        xPercent: -50,
+        repeat: -1,
+        duration: 40,
+        ease: "none",
+      });
+      // La cinta se acelera con la velocidad del scroll
+      ScrollTrigger.create({
+        trigger: ref.current,
+        start: "top bottom",
+        end: "bottom top",
+        onUpdate: (self) => {
+          const boost = 1 + Math.min(Math.abs(self.getVelocity()) / 300, 6);
+          gsap.to(loop, { timeScale: boost, duration: 0.2, overwrite: true });
+          gsap.to(loop, { timeScale: 1, duration: 1.2, delay: 0.2 });
+        },
+      });
+    },
+    { scope: ref }
+  );
+
+  const items = [...advantages, ...advantages];
+  return (
+    <div ref={ref} className="overflow-hidden border-y border-line bg-paper py-8" aria-label="Ventajas RNC">
+      <div data-marquee-track className="flex w-max">
+        {items.map((text, i) => (
+          <span
+            key={i}
+            aria-hidden={i >= advantages.length}
+            className="flex items-center gap-10 pr-10 font-display text-3xl md:text-5xl font-medium tracking-tight text-ink whitespace-nowrap"
+          >
+            {text}
+            <span className="text-accent text-2xl md:text-3xl">✦</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Nosotros = ({ overlap = false }) => {
   const navigate = useNavigate();
-  const [isVisible, setIsVisible] = useState(false);
-  const [animatedStats, setAnimatedStats] = useState({
-    clients: 0,
-    uptime: 0,
-    latency: 0,
-  });
+  const scope = useRef(null);
+  useReveal(scope);
 
-  // Refs para animaciones al hacer scroll
-  const featuresRef = useRef(null);
-  const servicesRef = useRef(null);
-  const advantagesRef = useRef(null);
-  const statsRef = useRef(null);
-  const ctaRef = useRef(null);
-
-  // Hooks para detectar cuando los elementos están en vista
-  const featuresInView = useInView(featuresRef, { once: true, threshold: 0.2 });
-  const servicesInView = useInView(servicesRef, { once: true, threshold: 0.2 });
-  const advantagesInView = useInView(advantagesRef, {
-    once: true,
-    threshold: 0.2,
-  });
-  const statsInView = useInView(statsRef, { once: true, threshold: 0.3 });
-  const ctaInView = useInView(ctaRef, { once: true, threshold: 0.3 });
-
-  // Controls para las animaciones
-  const featuresControls = useAnimation();
-  const servicesControls = useAnimation();
-  const advantagesControls = useAnimation();
-  const statsControls = useAnimation();
-  const ctaControls = useAnimation();
-
-  // Efectos para activar animaciones cuando los elementos entran en vista
-  useEffect(() => {
-    if (featuresInView) featuresControls.start("visible");
-  }, [featuresInView, featuresControls]);
-
-  useEffect(() => {
-    if (servicesInView) servicesControls.start("visible");
-  }, [servicesInView, servicesControls]);
-
-  useEffect(() => {
-    if (advantagesInView) advantagesControls.start("visible");
-  }, [advantagesInView, advantagesControls]);
-
-  useEffect(() => {
-    if (statsInView) statsControls.start("visible");
-  }, [statsInView, statsControls]);
-
-  useEffect(() => {
-    if (ctaInView) ctaControls.start("visible");
-  }, [ctaInView, ctaControls]);
-
-  useEffect(() => {
-    setIsVisible(true);
-
-    const animateStats = () => {
-      let clients = 0;
-      let uptime = 0;
-      const clientsTarget = 10000;
-      const uptimeTarget = 99.9;
-
-      const interval = setInterval(() => {
-        if (clients < clientsTarget) {
-          clients += Math.ceil(clientsTarget / 50);
-          if (clients > clientsTarget) clients = clientsTarget;
-        }
-
-        if (uptime < uptimeTarget) {
-          uptime += uptimeTarget / 30;
-          if (uptime > uptimeTarget) uptime = uptimeTarget;
-        }
-
-        setAnimatedStats({
-          clients,
-          uptime: parseFloat(uptime.toFixed(1)),
-          latency: "15ms",
-        });
-
-        if (clients >= clientsTarget && uptime >= uptimeTarget) {
-          clearInterval(interval);
-        }
-      }, 50);
-    };
-
-    setTimeout(animateStats, 1000);
-  }, []);
-
-  const handleContratar = () => {
-    navigate("/planes");
-  };
-
-  const handleConocerPlanes = () => {
-    navigate("/planes");
-  };
-
-  // Variantes de animación
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        duration: 0.8,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: {
-      opacity: 0,
-      y: 50,
-      scale: 0.95,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 12,
-        duration: 0.8,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: {
-      opacity: 0,
-      y: 60,
-      rotateX: -10,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      rotateX: 0,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15,
-        duration: 0.8,
-      },
-    },
-  };
-
-  const statsVariants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.8,
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 10,
-        duration: 0.6,
-      },
-    },
-  };
-
-  const fadeInUp = {
-    hidden: {
-      opacity: 0,
-      y: 60,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  const slideInLeft = {
-    hidden: {
-      opacity: 0,
-      x: -100,
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  const slideInRight = {
-    hidden: {
-      opacity: 0,
-      x: 100,
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut",
-      },
-    },
-  };
-
-  // Características principales
-  const features = [
-    {
-      icon: <FaTachometerAlt className="w-8 h-8" />,
-      title: "Velocidad Extrema",
-      description:
-        "Fibra óptica simétrica hasta 1 Gbps para streaming 4K, gaming competitivo y teletrabajo sin interrupciones",
-      metric: "1 Gbps",
-      color: "from-orange-500 to-red-500",
-      benefits: [
-        "Streaming 4K/8K sin buffering",
-        "Gaming con latencia mínima",
-        "Descargas ultra rápidas",
-      ],
-    },
-    {
-      icon: <FaInfinity className="w-8 h-8" />,
-      title: "Data Ilimitada",
-      description:
-        "Navega, descarga y transmite sin límites. Sin restricciones de consumo mensual ni throttling",
-      metric: "∞ GB",
-      color: "from-purple-500 to-pink-500",
-      benefits: [
-        "Sin límites de consumo",
-        "Sin reducción de velocidad",
-        "Todo incluido",
-      ],
-    },
-    {
-      icon: <FaShieldAlt className="w-8 h-8" />,
-      title: "Seguridad Avanzada",
-      description:
-        "Protección total 24/7 con firewall integrado, antivirus y control parental incluido",
-      metric: "100% Seguro",
-      color: "from-green-500 to-emerald-500",
-      benefits: [
-        "Firewall integrado",
-        "Protección antivirus",
-        "Control parental",
-      ],
-    },
-    {
-      icon: <FaGlobeAmericas className="w-8 h-8" />,
-      title: "Cobertura Extendida",
-      description:
-        "Llegamos donde otros no llegan. Más de 50 zonas cubiertas con tecnología de última generación",
-      metric: "50+ Zonas",
-      color: "from-blue-500 to-cyan-500",
-      benefits: ["Área metropolitana", "Zonas rurales", "Expansión continua"],
-    },
-  ];
-
-  // Servicios adicionales
-  const services = [
-    {
-      icon: <FaAward className="w-7 h-7" />,
-      title: "Garantía Certificada",
-      description:
-        "Calidad premium garantizada con certificación de satisfacción del cliente y reembolso de 30 días",
-      highlight: "5★ Rating",
-    },
-    {
-      icon: <FaNetworkWired className="w-7 h-7" />,
-      title: "Infraestructura Sólida",
-      description:
-        "Tecnología de última generación con redundancia total y 99.9% de uptime garantizado",
-      highlight: "99.9% Uptime",
-    },
-    {
-      icon: <FaTachometerAlt className="w-7 h-7" />,
-      title: "Instalación Express",
-      description:
-        "Instalación en menos de 48 horas con técnicos certificados y equipos de última generación",
-      highlight: "48h instalación",
-    },
-  ];
-
-  // Ventajas exclusivas
-  const advantages = [
-    {
-      icon: <FaUsers className="w-6 h-6" />,
-      text: "Atención personalizada con ejecutivo dedicado",
-    },
-    {
-      icon: <FaChartLine className="w-6 h-6" />,
-      text: "Escalabilidad garantizada sin costos ocultos",
-    },
-    {
-      icon: <FaHandshake className="w-6 h-6" />,
-      text: "Sin contratos forzosos - libertad total",
-    },
-    {
-      icon: <FaClock className="w-6 h-6" />,
-      text: "Actualizaciones gratuitas de equipos",
-    },
-    {
-      icon: <FaLightbulb className="w-6 h-6" />,
-      text: "Asesoramiento técnico especializado",
-    },
-    {
-      icon: <FaCrown className="w-6 h-6" />,
-      text: "Acceso prioritario a nuevas tecnologías",
-    },
-  ];
+  const title = "Conectamos *personas, no solo dispositivos.";
+  const ctaTitle = "¿Listo para la *verdadera velocidad?";
 
   return (
-    <div id="nosotros" className="min-h-screen relative">
-      {/* Fondo con imagen original */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 40, 80, 0.8)), url("https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80")',
-        }}
-      ></div>
+    <section
+      id="nosotros"
+      ref={scope}
+      className={`bg-paper text-ink ${
+        overlap
+          ? "relative z-10 -mt-[6vh] rounded-t-[2rem] md:rounded-t-[3rem] shadow-[0_-30px_80px_-20px_rgba(0,0,0,0.6)]"
+          : ""
+      }`}
+    >
+      {/* Introducción */}
+      <div className="mx-auto max-w-7xl px-5 md:px-8 pt-32 md:pt-40 pb-20 md:pb-28">
+        <Eyebrow index="01">Nosotros</Eyebrow>
 
-      {/* Contenido principal */}
-      <div className="relative pt-28 pb-20 px-4 sm:px-6 lg:px-8 min-h-screen">
-        <div className="max-w-7xl mx-auto">
-          {/* Encabezado con animación */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="text-center mb-20"
+        <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-16">
+          <h2
+            data-split
+            aria-label={plain(title)}
+            className="font-display text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-semibold leading-[0.95] lg:col-span-8"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="inline-flex items-center px-6 py-3 bg-orange-500/20 rounded-full border border-orange-400/30 mb-8"
-            >
-              <FaCrown className="w-5 h-5 text-orange-400 mr-2" />
-              <span className="text-orange-300 font-semibold">
-                Líderes en Conectividad Digital
-              </span>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight"
-            >
-              Descubre por qué{" "}
-              <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
-                RNC
-              </span>{" "}
-              es diferente
-            </motion.h1>
-
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: "8rem" }}
-              transition={{ delay: 0.8, duration: 1 }}
-              className="h-1.5 bg-gradient-to-r from-orange-500 to-amber-500 mx-auto mb-8 rounded-full shadow-lg shadow-orange-500/30"
-            ></motion.div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1, duration: 0.8 }}
-              className="text-xl md:text-2xl text-blue-100 max-w-4xl mx-auto leading-relaxed font-light"
-            >
-              No somos solo un proveedor de internet. Somos tu{" "}
-              <span className="text-orange-300 font-semibold">
-                socio estratégico
-              </span>{" "}
-              en conectividad, con tecnología de punta y un{" "}
-              <span className="text-amber-300 font-semibold">
-                compromiso real
-              </span>{" "}
-              con tu satisfacción.
-            </motion.p>
-          </motion.div>
-
-          {/* Características Principales con animaciones al scroll */}
-          <div ref={featuresRef} className="mb-20">
-            <motion.div
-              initial="hidden"
-              animate={featuresControls}
-              variants={fadeInUp}
-              className="text-center mb-12"
-            >
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Características que nos hacen{" "}
-                <span className="text-orange-400">únicos</span>
-              </h2>
-              <p className="text-xl text-blue-200 max-w-2xl mx-auto">
-                Tecnología de vanguardia combinada con servicio excepcional
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              animate={featuresControls}
-              variants={containerVariants}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-8"
-            >
-              {features.map((feature, index) => (
-                <motion.div
-                  key={index}
-                  variants={cardVariants}
-                  className="group bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 hover:border-orange-400/50 transition-all duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/20"
-                >
-                  <div className="flex items-start space-x-6">
-                    <motion.div
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0`}
-                    >
-                      <div className="text-white">{feature.icon}</div>
-                    </motion.div>
-
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-3">
-                        <motion.h3
-                          whileHover={{ color: "#fdba74" }}
-                          className="text-2xl font-bold text-white transition-colors duration-300"
-                        >
-                          {feature.title}
-                        </motion.h3>
-                        <motion.span
-                          whileHover={{ scale: 1.05 }}
-                          className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg"
-                        >
-                          {feature.metric}
-                        </motion.span>
-                      </div>
-
-                      <p className="text-blue-100 mb-4 leading-relaxed">
-                        {feature.description}
-                      </p>
-
-                      <motion.div className="space-y-2">
-                        {feature.benefits.map((benefit, idx) => (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.5 + idx * 0.1 }}
-                            className="flex items-center text-blue-200 text-sm"
-                          >
-                            <div className="w-2 h-2 bg-orange-400 rounded-full mr-3"></div>
-                            {benefit}
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Servicios Adicionales con animaciones al scroll */}
-          <div ref={servicesRef} className="mb-20">
-            <motion.div
-              initial="hidden"
-              animate={servicesControls}
-              variants={fadeInUp}
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl font-bold text-white mb-4">
-                Servicios <span className="text-amber-400">Premium</span>{" "}
-                Incluidos
-              </h2>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              animate={servicesControls}
-              variants={containerVariants}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6"
-            >
-              {services.map((service, index) => (
-                <motion.div
-                  key={index}
-                  variants={itemVariants}
-                  whileHover={{
-                    scale: 1.05,
-                    y: -10,
-                    transition: { type: "spring", stiffness: 300 },
-                  }}
-                  className="group bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:border-orange-400/50 transition-all duration-300 text-center"
-                >
-                  <motion.div
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                  >
-                    <div className="text-white">{service.icon}</div>
-                  </motion.div>
-
-                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-orange-300 transition-colors duration-300">
-                    {service.title}
-                  </h3>
-
-                  <p className="text-blue-100 text-sm mb-3 leading-relaxed">
-                    {service.description}
-                  </p>
-
-                  <motion.span
-                    whileHover={{ scale: 1.05 }}
-                    className="inline-block bg-orange-500/20 text-orange-300 px-3 py-1 rounded-full text-sm font-semibold border border-orange-400/30"
-                  >
-                    {service.highlight}
-                  </motion.span>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Ventajas Exclusivas con animaciones al scroll */}
-          <div ref={advantagesRef} className="mb-20">
-            <motion.div
-              initial="hidden"
-              animate={advantagesControls}
-              variants={fadeInUp}
-              className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20"
-            >
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-white mb-4">
-                  Ventajas <span className="text-green-400">Exclusivas</span>{" "}
-                  RNC
-                </h2>
-                <p className="text-blue-200 text-lg">
-                  Beneficios que solo nosotros ofrecemos
-                </p>
-              </div>
-
-              <motion.div
-                initial="hidden"
-                animate={advantagesControls}
-                variants={containerVariants}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            <SplitWords text={title} />
+          </h2>
+          <div className="lg:col-span-4 lg:pt-4 flex flex-col justify-end gap-8">
+            <p data-reveal className="text-lg leading-relaxed text-stone-600">
+              No somos solo un proveedor de internet. Somos tu socio en
+              conectividad, con tecnología de punta y un compromiso real con tu
+              satisfacción.
+            </p>
+            <div data-reveal>
+              <button
+                onClick={() => navigate("/planes")}
+                className="group inline-flex items-center gap-3 font-semibold text-ink"
               >
-                {advantages.map((advantage, index) => (
-                  <motion.div
-                    key={index}
-                    variants={itemVariants}
-                    whileHover={{
-                      scale: 1.02,
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      transition: { duration: 0.2 },
-                    }}
-                    className="flex items-center space-x-4 p-4 rounded-xl bg-white/5 transition-all duration-300 group"
-                  >
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      className="w-12 h-12 bg-gradient-to-br from-orange-500/20 to-amber-500/20 rounded-xl flex items-center justify-center transition-transform duration-300"
-                    >
-                      <div className="text-orange-400">{advantage.icon}</div>
-                    </motion.div>
-                    <span className="text-blue-100 font-medium flex-1">
-                      {advantage.text}
-                    </span>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </motion.div>
-          </div>
-
-          {/* Llamada a la acción con animaciones al scroll */}
-          <div ref={ctaRef} className="mb-16">
-            <motion.div
-              initial="hidden"
-              animate={ctaControls}
-              variants={fadeInUp}
-              className="text-center bg-gradient-to-r from-orange-500/20 to-amber-500/20 backdrop-blur-xl rounded-3xl p-12 border border-orange-400/30 hover:border-orange-400/50 transition-all duration-500"
-            >
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                className="flex justify-center mb-6"
-              >
-                <div className="w-20 h-20 bg-gradient-to-br from-orange-500 to-amber-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-orange-500/40">
-                  <FaRocket className="w-10 h-10 text-white" />
-                </div>
-              </motion.div>
-
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                ¿Listo para experimentar la verdadera velocidad?
-              </h2>
-
-              <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto leading-relaxed font-light">
-                Únete a los{" "}
-                <span className="text-orange-300 font-semibold">
-                  +10,000 clientes satisfechos
-                </span>{" "}
-                que ya disfrutan de nuestra conectividad de alta velocidad.
-                <span className="text-amber-300 font-semibold">
-                  {" "}
-                  Sin contratos forzosos
-                </span>{" "}
-                y con{" "}
-                <span className="text-green-300 font-semibold">
-                  garantía de satisfacción
+                <span className="link-underline pb-1">Conoce nuestros planes</span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full border border-line transition-all duration-500 group-hover:border-accent group-hover:bg-accent group-hover:text-white">
+                  <FaArrowRight className="h-3.5 w-3.5 transition-transform duration-500 group-hover:-rotate-45" />
                 </span>
-                .
-              </p>
-
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-              >
-                <motion.button
-                  whileHover={{
-                    scale: 1.05,
-                    boxShadow: "0 20px 40px rgba(249, 115, 22, 0.4)",
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleContratar}
-                  className="group relative bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-5 px-12 rounded-2xl text-lg transition-all duration-300 overflow-hidden"
-                >
-                  <span className="relative z-10 flex items-center space-x-3">
-                    <motion.div
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    >
-                      <FaRocket className="w-5 h-5" />
-                    </motion.div>
-                    <span>Contratar Ahora</span>
-                  </span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12"
-                    initial={{ x: "-100%" }}
-                    whileHover={{ x: "100%" }}
-                    transition={{ duration: 0.8 }}
-                  ></motion.div>
-                </motion.button>
-
-                <motion.button
-                  whileHover={{
-                    scale: 1.05,
-                    backgroundColor: "rgba(255, 255, 255, 0.1)",
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleConocerPlanes}
-                  className="group relative bg-transparent hover:bg-white/10 text-white font-bold py-5 px-12 rounded-2xl text-lg border-2 border-orange-400/50 hover:border-orange-400 transition-all duration-300 overflow-hidden"
-                >
-                  <span className="relative z-10 flex items-center space-x-3">
-                    <FaUserCheck className="w-5 h-5" />
-                    <span>Ver Planes Detallados</span>
-                  </span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-orange-500/10 to-transparent transform -skew-x-12"
-                    initial={{ x: "-100%" }}
-                    whileHover={{ x: "100%" }}
-                    transition={{ duration: 0.8 }}
-                  ></motion.div>
-                </motion.button>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="flex flex-wrap justify-center gap-6 mt-8 text-blue-200 text-sm"
-              >
-                {[
-                  "Sin costos de instalación",
-                  "Garantía 30 días",
-                  "Equipos incluidos",
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.7 + index * 0.1 }}
-                    className="flex items-center space-x-2"
-                  >
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span>{item}</span>
-                  </motion.div>
-                ))}
-              </motion.div>
-            </motion.div>
+              </button>
+            </div>
           </div>
+        </div>
 
-          {/* Estadísticas con animaciones al scroll */}
-          <div ref={statsRef} className="mb-20">
-            <motion.div
-              initial="hidden"
-              animate={statsControls}
-              variants={containerVariants}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-6"
+        {/* Estadísticas */}
+        <div className="mt-20 md:mt-28">
+          <div data-line className="h-px bg-line" />
+          <dl className="grid grid-cols-2 lg:grid-cols-4">
+            {stats.map((s, i) => (
+              <div
+                key={s.label}
+                data-reveal
+                className={`py-8 md:py-10 ${i % 2 === 1 ? "pl-6 md:pl-10 border-l border-line" : ""} ${
+                  i >= 2 ? "border-t lg:border-t-0 border-line" : ""
+                } ${i === 2 ? "lg:pl-10 lg:border-l" : ""}`}
+              >
+                <dt className="text-sm text-stone-500">{s.label}</dt>
+                <dd className="mt-3 font-display text-4xl md:text-6xl font-semibold tracking-tight">
+                  <span data-counter={s.value} data-decimals={s.decimals || 0}>
+                    {s.value.toLocaleString("es-EC", {
+                      minimumFractionDigits: s.decimals || 0,
+                    })}
+                  </span>
+                  <span className="text-accent">{s.suffix}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+          <div data-line className="h-px bg-line" />
+        </div>
+      </div>
+
+      {/* Características */}
+      <div className="mx-auto max-w-7xl px-5 md:px-8 pb-24 md:pb-32">
+        <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <h3
+            data-split
+            aria-label="Lo que nos hace únicos"
+            className="font-display text-3xl md:text-5xl font-semibold"
+          >
+            <SplitWords text="Lo que nos hace *únicos" />
+          </h3>
+          <p data-reveal className="max-w-sm text-stone-500">
+            Tecnología de vanguardia combinada con un servicio cercano.
+          </p>
+        </div>
+
+        <ul className="border-t border-line">
+          {features.map((f, i) => (
+            <li
+              key={f.title}
+              data-reveal
+              className="group relative overflow-hidden border-b border-line"
             >
-              {[
-                {
-                  value: `${animatedStats.clients.toLocaleString()}+`,
-                  label: "Clientes Satisfechos",
-                  icon: <FaUsers className="w-6 h-6" />,
-                  color: "text-orange-400",
-                  description: "Confían en nosotros",
-                },
-                {
-                  value: `${animatedStats.uptime}%`,
-                  label: "Uptime Garantizado",
-                  icon: <FaChartLine className="w-6 h-6" />,
-                  color: "text-green-400",
-                  description: "Máxima estabilidad",
-                },
-                {
-                  value: animatedStats.latency,
-                  label: "Latencia Promedio",
-                  icon: <FaTachometerAlt className="w-6 h-6" />,
-                  color: "text-amber-400",
-                  description: "Máximo rendimiento",
-                },
-              ].map((stat, index) => (
-                <motion.div
-                  key={index}
-                  variants={statsVariants}
-                  whileHover={{
-                    scale: 1.05,
-                    y: -5,
-                    transition: { type: "spring", stiffness: 300 },
-                  }}
-                  className="text-center group"
-                >
-                  <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 hover:border-orange-400/50 transition-all duration-300 h-full">
-                    <motion.div
-                      whileHover={{ scale: 1.1 }}
-                      className={`w-14 h-14 bg-gradient-to-br from-orange-500/20 to-amber-500/20 rounded-xl flex items-center justify-center mb-4 mx-auto transition-transform duration-300 ${stat.color}`}
-                    >
-                      {stat.icon}
-                    </motion.div>
-                    <motion.div
-                      initial={{ scale: 0.5 }}
-                      animate={{ scale: 1 }}
-                      transition={{ delay: index * 0.1 + 0.5 }}
-                      className={`text-3xl md:text-4xl font-bold mb-2 ${stat.color} font-mono`}
-                    >
-                      {stat.value}
-                    </motion.div>
-                    <div className="text-blue-200 text-sm font-semibold uppercase tracking-wide mb-1">
-                      {stat.label}
-                    </div>
-                    <div className="text-blue-300 text-xs">
-                      {stat.description}
-                    </div>
+              {/* Relleno que sube al pasar el cursor */}
+              <span className="absolute inset-0 origin-bottom scale-y-0 bg-ink transition-transform duration-700 ease-[cubic-bezier(0.65,0,0.35,1)] group-hover:scale-y-100" />
+              <div className="relative grid grid-cols-12 items-center gap-4 px-2 py-8 md:px-6 md:py-10 transition-colors duration-500 group-hover:text-white">
+                <span className="col-span-2 md:col-span-1 font-display text-sm text-stone-400 group-hover:text-stone-500">
+                  0{i + 1}
+                </span>
+                <div className="col-span-10 md:col-span-5">
+                  <h4 className="font-display text-2xl md:text-4xl font-semibold tracking-tight">
+                    {f.title}
+                  </h4>
+                </div>
+                <div className="col-span-12 md:col-span-4 md:col-start-7 col-start-3">
+                  <p className="text-stone-500 group-hover:text-stone-300 transition-colors duration-500">
+                    {f.description}
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {f.tags.map((t) => (
+                      <span
+                        key={t}
+                        className="rounded-full border border-line px-3 py-1 text-xs text-stone-500 transition-colors duration-500 group-hover:border-white/20 group-hover:text-stone-300"
+                      >
+                        {t}
+                      </span>
+                    ))}
                   </div>
-                </motion.div>
+                </div>
+                <span className="hidden md:block md:col-span-2 text-right font-display text-3xl font-semibold text-accent">
+                  {f.metric}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Ventajas en movimiento */}
+      <Marquee />
+
+      {/* Servicios incluidos */}
+      <div className="mx-auto max-w-7xl px-5 md:px-8 py-24 md:py-32">
+        <Eyebrow index="02">Incluido en todos los planes</Eyebrow>
+        <div className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-3">
+          {services.map((s) => {
+            const Icon = s.icon;
+            return (
+              <article
+                key={s.title}
+                data-reveal
+                className="group flex flex-col bg-paper p-8 md:p-10 transition-colors duration-500 hover:bg-white"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-sand text-ink transition-all duration-500 group-hover:bg-accent group-hover:text-white group-hover:rotate-[360deg]">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className="font-display text-sm font-semibold text-accent">
+                    {s.highlight}
+                  </span>
+                </div>
+                <h4 className="mt-16 font-display text-2xl font-semibold tracking-tight">
+                  {s.title}
+                </h4>
+                <p className="mt-3 text-stone-500 leading-relaxed">{s.description}</p>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Llamada a la acción */}
+      <div className="px-3 md:px-5 pb-3 md:pb-5">
+        <div className="relative overflow-hidden rounded-[2rem] bg-ink px-6 py-20 md:px-16 md:py-28 text-white">
+          <div
+            data-speed="0.15"
+            className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-accent/25 blur-[120px]"
+          />
+          <div className="relative mx-auto max-w-5xl text-center">
+            <Eyebrow index="→" dark className="justify-center">
+              Empieza hoy
+            </Eyebrow>
+            <h3
+              data-split
+              aria-label={plain(ctaTitle)}
+              className="mt-8 font-display text-4xl sm:text-6xl md:text-7xl font-semibold leading-[1]"
+            >
+              <SplitWords text={ctaTitle} />
+            </h3>
+            <p data-reveal className="mx-auto mt-8 max-w-xl text-lg text-stone-400">
+              Únete a más de 500 clientes que ya disfrutan de nuestra
+              conectividad. Sin contratos forzosos y con garantía de satisfacción.
+            </p>
+            <div data-reveal className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
+              <Magnetic>
+                <button
+                  onClick={() => navigate("/planes")}
+                  className="group flex items-center gap-3 rounded-full bg-accent px-8 py-4 font-semibold text-white transition-colors duration-300 hover:bg-white hover:text-ink"
+                >
+                  <RollText>Ver planes</RollText>
+                  <FaArrowRight className="h-3.5 w-3.5 transition-transform duration-500 group-hover:translate-x-1" />
+                </button>
+              </Magnetic>
+              <Magnetic>
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-center gap-3 rounded-full border border-white/20 px-8 py-4 font-semibold transition-colors duration-300 hover:border-white"
+                >
+                  <FaWhatsapp className="h-4 w-4" />
+                  <RollText>Escríbenos</RollText>
+                </a>
+              </Magnetic>
+            </div>
+            <ul data-reveal className="mt-12 flex flex-wrap justify-center gap-x-8 gap-y-2 text-sm text-stone-500">
+              {["Sin costos de instalación", "Garantía 30 días", "Equipos incluidos"].map((t) => (
+                <li key={t} className="flex items-center gap-2">
+                  <span className="h-1 w-1 rounded-full bg-accent" />
+                  {t}
+                </li>
               ))}
-            </motion.div>
+            </ul>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

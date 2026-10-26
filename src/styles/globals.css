@@ -1,11 +1,25 @@
 @import "tailwindcss";
 
+/* Sistema de diseño minimalista */
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --color-ink: #0c0a09;
+  --color-ink-soft: #292524;
+  --color-paper: #fafaf9;
+  --color-sand: #f5f5f4;
+  --color-line: #e7e5e4;
+  --color-accent: #f97316;
+  --color-accent-dark: #ea580c;
+}
+
 /* ESTILOS GLOBALES MÍNIMOS - SIN AFECTAR COMPONENTES */
 body {
   background-color: #000;
   margin: 0;
   padding: 0;
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
   
   /* Scrollbar personalizada pero funcional */
   scrollbar-width: thin;
@@ -73,10 +87,75 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Nunca mostrar scroll horizontal (las capas del hero y la escena fija
+   pueden medir unos píxeles más que la página al aparecer la barra vertical) */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* Sin barra de scroll horizontal en ningún caso */
+::-webkit-scrollbar:horizontal {
+  height: 0;
+}
+
 /* Mejora de rendimiento para elementos que se animan */
 .loader-logo,
 .loader-spinner {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+/* ---------- Utilidades del rediseño ---------- */
+::selection {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.font-display {
+  letter-spacing: -0.03em;
+}
+
+/* Palabras para animaciones de texto con GSAP */
+.split-word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+.split-word > span {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* Enlace con subrayado animado */
+.link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 100% 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.link-underline:hover {
+  background-size: 100% 1px;
+  background-position: 0% 100%;
+}
+
+/* Evita el parpadeo antes de que GSAP tome el control */
+.js-reveal [data-reveal] {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js-reveal [data-reveal] {
+    opacity: 1;
+  }
+}
+
+/* Indicador de scroll del hero */
+@keyframes scroll-hint {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(200%); }
 }

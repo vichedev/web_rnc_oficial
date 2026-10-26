@@ -3,6 +3,14 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
 import "./styles/globals.css";
+import { ScrollTrigger } from "./lib/gsap";
+
+// Oculta los elementos [data-reveal] hasta que GSAP los anime
+document.documentElement.classList.add("js-reveal");
+
+// Recalcular animaciones cuando terminan de cargar fuentes e imágenes
+window.addEventListener("load", () => ScrollTrigger.refresh());
+document.fonts?.ready.then(() => ScrollTrigger.refresh());
 
 // Manejo de errores global
 window.addEventListener("error", (e) => {

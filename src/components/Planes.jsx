@@ -1,430 +1,385 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { FaWhatsapp, FaCheck, FaArrowRight, FaTimes, FaImage } from "react-icons/fa";
+import { gsap, useGSAP, prefersReducedMotion } from "../lib/gsap";
+import useReveal from "../hooks/useReveal";
+import SplitWords from "./ui/SplitWords";
+import { plain } from "../utils/text";
+import Eyebrow from "./ui/Eyebrow";
 
-const Planes = () => {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const planes = [
-    {
-      id: 1,
-      nombre: "PLAN HOME - BÁSICO",
-      velocidad: "50 MB",
-      caracteristicas: ["Simétrico", "Compartición 2:1", "WIFI Incluido"],
-      descripcion: "Ideal para estudiantes y navegación básica",
-      precio: "$20.00",
-      incluye: "Incluye Impuestos",
-      imagen: "/images/planes/plan1.png",
-      color: "blue",
-      popular: false,
-    },
-    {
-      id: 2,
-      nombre: "PLAN INTERMEDIO",
-      velocidad: "75 MB",
-      caracteristicas: ["Simétrico", "WIFI Incluido", "Conexión estable"],
-      descripcion: "Perfecto para teletrabajo y streaming",
-      precio: "$35.00",
-      incluye: "Incluye Impuestos",
-      imagen: "/images/planes/plan2.png",
-      color: "green",
-      popular: true,
-    },
-    {
-      id: 3,
-      nombre: "PLAN AVANZADO",
-      velocidad: "100 MB",
-      caracteristicas: ["Simétrico", "WIFI Incluido", "Baja latencia"],
-      descripcion: "Excelente para gaming y hogares conectados",
-      precio: "$50.00",
-      incluye: "Incluye Impuestos",
-      imagen: "/images/planes/plan3.png",
-      color: "purple",
-      popular: false,
-    },
-    {
-      id: 4,
-      nombre: "PLAN CORPORATIVO",
-      velocidad: "200 MB",
-      caracteristicas: ["Simétrico", "WIFI Incluido", "Alta estabilidad"],
-      descripcion: "Soluciones empresariales para tu oficina",
-      precio: "$300.00",
-      incluye: "Incluye Impuestos",
-      imagen: "/images/planes/plan4.png",
-      color: "orange",
-      popular: false,
-    },
-    {
-      id: 5,
-      nombre: "PLAN TERCERA EDAD",
-      velocidad: "50 MB",
-      caracteristicas: ["Simétrico", "Compartición 2:1", "WIFI Incluido"],
-      descripcion: "Pensado para nuestros adultos mayores",
-      precio: "$10.00",
-      incluye: "Incluye Impuestos *Aplica restricciones",
-      imagen: "/images/planes/plan5.png",
-      color: "teal",
-      popular: false,
-    },
-    {
-      id: 6,
-      nombre: "PLAN DISCAPACIDAD",
-      velocidad: "50 MB",
-      caracteristicas: ["Simétrico", "Compartición 1:1", "WIFI Incluido"],
-      descripcion: "Accesibilidad digital para todos",
-      precio: "$15.00",
-      incluye: "Incluye Impuestos *Aplica restricciones",
-      imagen: "/images/planes/plan6.png",
-      color: "indigo",
-      popular: false,
-    },
-  ];
+const planes = [
+  {
+    id: 1,
+    nombre: "Home Básico",
+    tipo: "Hogar",
+    velocidad: 50,
+    caracteristicas: ["Simétrico", "Compartición 2:1", "WiFi incluido"],
+    descripcion: "Ideal para estudiantes y navegación básica.",
+    precio: "20",
+    incluye: "Incluye impuestos",
+    imagen: "/images/planes/plan1.png",
+  },
+  {
+    id: 2,
+    nombre: "Intermedio",
+    tipo: "Hogar",
+    velocidad: 75,
+    caracteristicas: ["Simétrico", "WiFi incluido", "Conexión estable"],
+    descripcion: "Perfecto para teletrabajo y streaming.",
+    precio: "35",
+    incluye: "Incluye impuestos",
+    imagen: "/images/planes/plan2.png",
+    popular: true,
+  },
+  {
+    id: 3,
+    nombre: "Avanzado",
+    tipo: "Hogar",
+    velocidad: 100,
+    caracteristicas: ["Simétrico", "WiFi incluido", "Baja latencia"],
+    descripcion: "Excelente para gaming y hogares conectados.",
+    precio: "50",
+    incluye: "Incluye impuestos",
+    imagen: "/images/planes/plan3.png",
+  },
+  {
+    id: 4,
+    nombre: "Corporativo",
+    tipo: "Empresa",
+    velocidad: 200,
+    caracteristicas: ["Simétrico", "WiFi incluido", "Alta estabilidad"],
+    descripcion: "Soluciones empresariales para tu oficina.",
+    precio: "300",
+    incluye: "Incluye impuestos",
+    imagen: "/images/planes/plan4.png",
+  },
+  {
+    id: 5,
+    nombre: "Tercera Edad",
+    tipo: "Social",
+    velocidad: 50,
+    caracteristicas: ["Simétrico", "Compartición 2:1", "WiFi incluido"],
+    descripcion: "Pensado para nuestros adultos mayores.",
+    precio: "10",
+    incluye: "Incluye impuestos · Aplican restricciones",
+    imagen: "/images/planes/plan5.png",
+  },
+  {
+    id: 6,
+    nombre: "Discapacidad",
+    tipo: "Social",
+    velocidad: 50,
+    caracteristicas: ["Simétrico", "Compartición 1:1", "WiFi incluido"],
+    descripcion: "Accesibilidad digital para todos.",
+    precio: "15",
+    incluye: "Incluye impuestos · Aplican restricciones",
+    imagen: "/images/planes/plan6.png",
+  },
+];
 
-  // Componente de partículas animadas
-  const FloatingParticles = () => {
-    return (
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Partículas pequeñas */}
-        {[...Array(20)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full bg-gradient-to-r from-blue-200/40 to-purple-200/40 animate-float"
-            style={{
-              width: `${Math.random() * 15 + 5}px`,
-              height: `${Math.random() * 15 + 5}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 20}s`,
-              animationDuration: `${Math.random() * 25 + 15}s`,
-            }}
-          />
-        ))}
-        {/* Partículas medianas */}
-        {[...Array(12)].map((_, i) => (
-          <div
-            key={i + 20}
-            className="absolute rounded-full bg-gradient-to-r from-blue-300/30 to-purple-300/30 animate-float-slow"
-            style={{
-              width: `${Math.random() * 25 + 10}px`,
-              height: `${Math.random() * 25 + 10}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 15}s`,
-              animationDuration: `${Math.random() * 30 + 20}s`,
-            }}
-          />
-        ))}
-        {/* Partículas grandes */}
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i + 32}
-            className="absolute rounded-full bg-gradient-to-r from-blue-100/20 to-purple-100/20 animate-float-slower"
-            style={{
-              width: `${Math.random() * 40 + 20}px`,
-              height: `${Math.random() * 40 + 20}px`,
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 10}s`,
-              animationDuration: `${Math.random() * 40 + 30}s`,
-            }}
-          />
-        ))}
-      </div>
-    );
-  };
+const tabs = ["Todos", "Hogar", "Empresa", "Social"];
 
-  // Patrón de conexión de red
-  const NetworkPattern = () => {
-    return (
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
-        <div className="w-full h-full" 
-          style={{
-            backgroundImage: `
-              radial-gradient(circle at 25% 25%, currentColor 1px, transparent 1px),
-              radial-gradient(circle at 75% 75%, currentColor 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px',
-            backgroundPosition: '0 0, 25px 25px'
-          }}
-        ></div>
-      </div>
-    );
-  };
+const whatsappLink = (nombre) =>
+  `https://wa.me/59343755230?text=${encodeURIComponent(
+    `¡Hola! Estoy interesado en el Plan ${nombre} de RNC. ¿Podrían darme más información?`
+  )}`;
 
-  const handleWhatsAppClick = (planNombre) => {
-    const message = `¡Hola! Estoy interesado en el ${planNombre} de RNC. ¿Podrían darme más información?`;
-    const encodedMessage = encodeURIComponent(message);
-    const phoneNumber = "+59343755230";
-    window.open(
-      `https://wa.me/${phoneNumber}?text=${encodedMessage}`,
-      "_blank"
-    );
-  };
-
-  const getColorClasses = (color) => {
-    const colors = {
-      blue: "from-blue-500 to-blue-600 border-blue-200",
-      green: "from-green-500 to-green-600 border-green-200",
-      purple: "from-purple-500 to-purple-600 border-purple-200",
-      orange: "from-orange-500 to-orange-600 border-orange-200",
-      teal: "from-teal-500 to-teal-600 border-teal-200",
-      indigo: "from-indigo-500 to-indigo-600 border-indigo-200",
-    };
-    return colors[color] || colors.blue;
-  };
-
-  const openImageModal = (plan) => {
-    setSelectedImage({
-      src: plan.imagen,
-      alt: plan.nombre,
-      title: plan.nombre
-    });
-  };
-
-  const closeImageModal = () => {
-    setSelectedImage(null);
+// Tarjeta con brillo que sigue al cursor
+const PlanCard = ({ plan, onPreview }) => {
+  const dark = plan.popular;
+  const onMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    e.currentTarget.style.setProperty("--x", `${e.clientX - r.left}px`);
+    e.currentTarget.style.setProperty("--y", `${e.clientY - r.top}px`);
   };
 
   return (
-    <div
-      id="planes"
-      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 pt-20 relative overflow-hidden"
+    <article
+      data-plan-card
+      onMouseMove={onMove}
+      className={`group relative flex flex-col overflow-hidden rounded-3xl border p-7 md:p-8 transition-[transform,border-color] duration-500 hover:-translate-y-1.5 ${
+        dark ? "bg-ink text-white border-ink" : "bg-white border-line hover:border-stone-300"
+      }`}
     >
-      {/* Fondo con partículas animadas */}
-      <FloatingParticles />
-      <NetworkPattern />
-      
-      {/* Patrón de grid sutil */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.02)_1px,transparent_1px)] bg-[size:60px_60px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)] pointer-events-none"></div>
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(400px circle at var(--x, 50%) var(--y, 50%), ${
+            dark ? "rgba(249,115,22,0.22)" : "rgba(249,115,22,0.09)"
+          }, transparent 60%)`,
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 py-16 relative z-10">
-        {/* Encabezado Mejorado */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-6 shadow-lg">
-            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-            </svg>
-          </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6">
-            NUESTROS <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">PLANES</span>
-          </h1>
-          <div className="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-500 mx-auto mb-8 rounded-full"></div>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-            Descubre la perfecta conexión para tu hogar o negocio. Velocidad
-            simétrica garantizada.
+      <div className="relative flex items-center justify-between">
+        <span className={`text-xs font-semibold uppercase tracking-[0.2em] ${dark ? "text-stone-400" : "text-stone-500"}`}>
+          {plan.tipo}
+        </span>
+        {plan.popular && (
+          <span className="rounded-full bg-accent px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-white">
+            Más popular
+          </span>
+        )}
+      </div>
+
+      <h3 className="relative mt-6 font-display text-2xl font-semibold tracking-tight">
+        Plan {plan.nombre}
+      </h3>
+      <p className={`relative mt-2 text-sm ${dark ? "text-stone-400" : "text-stone-500"}`}>
+        {plan.descripcion}
+      </p>
+
+      <div className="relative mt-8 flex items-end gap-2">
+        <span className="font-display text-7xl font-semibold leading-none tracking-tighter">
+          {plan.velocidad}
+        </span>
+        <span className="pb-1.5 text-sm leading-tight">
+          <span className="block font-semibold">Mbps</span>
+          <span className={dark ? "text-stone-400" : "text-stone-500"}>simétrico</span>
+        </span>
+      </div>
+
+      <ul className={`relative mt-8 space-y-3 border-t pt-6 ${dark ? "border-white/10" : "border-line"}`}>
+        {plan.caracteristicas.map((c) => (
+          <li key={c} className="flex items-center gap-3 text-sm">
+            <span className={`flex h-5 w-5 items-center justify-center rounded-full ${dark ? "bg-white/10" : "bg-sand"}`}>
+              <FaCheck className="h-2.5 w-2.5 text-accent" />
+            </span>
+            {c}
+          </li>
+        ))}
+      </ul>
+
+      <div className="relative mt-auto pt-10">
+        <div className="flex items-baseline gap-1">
+          <span className="font-display text-4xl font-semibold tracking-tight">${plan.precio}</span>
+          <span className={`text-sm ${dark ? "text-stone-400" : "text-stone-500"}`}>.00 / mes</span>
+        </div>
+        <p className={`mt-1 text-xs ${dark ? "text-stone-500" : "text-stone-400"}`}>{plan.incluye}</p>
+
+        <div className="mt-6 flex items-center gap-2">
+          <a
+            href={whatsappLink(plan.nombre)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`group/btn flex flex-1 items-center justify-center gap-2 rounded-full py-3.5 text-sm font-semibold transition-colors duration-300 ${
+              dark ? "bg-accent text-white hover:bg-white hover:text-ink" : "bg-ink text-white hover:bg-accent"
+            }`}
+          >
+            <FaWhatsapp className="h-4 w-4" />
+            Consultar
+          </a>
+          <button
+            onClick={() => onPreview(plan)}
+            aria-label={`Ver afiche del Plan ${plan.nombre}`}
+            title="Ver afiche"
+            className={`flex h-12 w-12 items-center justify-center rounded-full border transition-colors duration-300 ${
+              dark ? "border-white/15 hover:border-white" : "border-line hover:border-ink"
+            }`}
+          >
+            <FaImage className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+};
+
+const Planes = () => {
+  const scope = useRef(null);
+  const gridRef = useRef(null);
+  const tabsRef = useRef(null);
+  const indicatorRef = useRef(null);
+  const modalRef = useRef(null);
+  const [tab, setTab] = useState("Todos");
+  const [preview, setPreview] = useState(null);
+
+  useReveal(scope);
+
+  const visibles = tab === "Todos" ? planes : planes.filter((p) => p.tipo === tab);
+
+  // Indicador deslizante de las pestañas
+  useLayoutEffect(() => {
+    const place = (animate) => {
+      const active = tabsRef.current?.querySelector(`[data-tab="${tab}"]`);
+      if (!active) return;
+      gsap.to(indicatorRef.current, {
+        x: active.offsetLeft,
+        width: active.offsetWidth,
+        duration: animate && !prefersReducedMotion() ? 0.6 : 0,
+        ease: "expo.out",
+      });
+    };
+    place(true);
+    const onResize = () => place(false);
+    window.addEventListener("resize", onResize);
+    document.fonts?.ready.then(onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [tab]);
+
+  // Entrada de las tarjetas (al hacer scroll y al cambiar de pestaña)
+  useGSAP(
+    () => {
+      if (prefersReducedMotion()) return;
+      gsap.fromTo(
+        "[data-plan-card]",
+        { opacity: 0, y: 60 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "expo.out",
+          stagger: 0.08,
+          clearProps: "transform",
+          scrollTrigger: { trigger: gridRef.current, start: "top 85%", once: true },
+        }
+      );
+    },
+    { scope: gridRef, dependencies: [tab], revertOnUpdate: true }
+  );
+
+  // Animación del modal del afiche
+  useGSAP(
+    () => {
+      if (!preview) return;
+      gsap.fromTo("[data-modal-bg]", { opacity: 0 }, { opacity: 1, duration: 0.4 });
+      gsap.fromTo(
+        "[data-modal-img]",
+        { opacity: 0, y: 40, scale: 0.94 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "expo.out", delay: 0.05 }
+      );
+    },
+    { scope: modalRef, dependencies: [preview] }
+  );
+
+  const closePreview = () => {
+    gsap.to(modalRef.current, {
+      opacity: 0,
+      duration: 0.3,
+      onComplete: () => setPreview(null),
+    });
+  };
+
+  useEffect(() => {
+    if (!preview) return;
+    const onKey = (e) => e.key === "Escape" && closePreview();
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [preview]);
+
+  const title = "Internet simétrico para *cada momento.";
+
+  return (
+    <section id="planes" ref={scope} className="bg-sand text-ink">
+      <div className="mx-auto max-w-7xl px-5 md:px-8 pt-32 md:pt-40 pb-24 md:pb-32">
+        <Eyebrow index="03">Planes</Eyebrow>
+
+        <div className="mt-10 grid gap-8 lg:grid-cols-12 lg:items-end">
+          <h2
+            data-split
+            aria-label={plain(title)}
+            className="font-display text-5xl sm:text-6xl lg:text-7xl font-semibold leading-[0.95] lg:col-span-8"
+          >
+            <SplitWords text={title} />
+          </h2>
+          <p data-reveal className="text-lg leading-relaxed text-stone-600 lg:col-span-4">
+            Velocidad simétrica garantizada para tu hogar o negocio. Precios
+            claros, sin sorpresas.
           </p>
         </div>
 
-        {/* Grid de Planes Mejorado */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {planes.map((plan) => (
-            <div
-              key={plan.id}
-              className={`relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100/80 overflow-hidden hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 ${
-                plan.popular ? "ring-2 ring-blue-500/50 ring-opacity-50" : ""
-              } group`}
-            >
-              {/* Badge Popular Mejorado */}
-              {plan.popular && (
-                <div className="absolute top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full text-sm font-bold z-10 shadow-lg flex items-center gap-1">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                  </svg>
-                  MÁS POPULAR
-                </div>
-              )}
-
-              {/* Imagen con efectos mejorados */}
-              <div 
-                className="h-48 overflow-hidden cursor-pointer relative bg-gradient-to-br from-gray-100 to-gray-200"
-                onClick={() => openImageModal(plan)}
+        {/* Pestañas */}
+        <div data-reveal className="mt-14 overflow-x-auto">
+          <div
+            ref={tabsRef}
+            role="tablist"
+            aria-label="Filtrar planes"
+            className="relative inline-flex rounded-full border border-line bg-white p-1"
+          >
+            <span
+              ref={indicatorRef}
+              aria-hidden="true"
+              className="absolute left-0 top-1 bottom-1 rounded-full bg-ink"
+              style={{ width: 0 }}
+            />
+            {tabs.map((t) => (
+              <button
+                key={t}
+                data-tab={t}
+                role="tab"
+                aria-selected={tab === t}
+                onClick={() => setTab(t)}
+                className={`relative z-10 whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-medium transition-colors duration-500 ${
+                  tab === t ? "text-white" : "text-stone-500 hover:text-ink"
+                }`}
               >
-                <img
-                  src={plan.imagen}
-                  alt={plan.nombre}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                
-                {/* Overlay de gradiente */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                
-                {/* Efecto de conexión animada */}
-                <div className="absolute bottom-4 left-4 right-4">
-                  <div className="flex items-center gap-2 text-white">
-                    <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-sm font-semibold drop-shadow-lg">Conexión Activa</span>
-                  </div>
-                </div>
+                {t}
+              </button>
+            ))}
+          </div>
+        </div>
 
-                {/* Overlay de información al hacer hover */}
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <div className="text-white text-center transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                    <svg className="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m0 0l3-3m-3 3L7 13" />
-                    </svg>
-                    <span className="text-sm font-semibold">Ver detalles</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contenido Mejorado */}
-              <div className="p-6">
-                {/* Nombre y Velocidad */}
-                <div className="mb-4">
-                  <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-blue-600 transition-colors duration-300">
-                    {plan.nombre}
-                  </h3>
-                  <div
-                    className={`inline-block bg-gradient-to-r ${getColorClasses(
-                      plan.color
-                    )} text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg`}
-                  >
-                    ⚡ {plan.velocidad} SIMÉTRICO
-                  </div>
-                </div>
-
-                {/* Descripción */}
-                <p className="text-gray-600 mb-4 leading-relaxed">
-                  {plan.descripcion}
-                </p>
-
-                {/* Características Mejoradas */}
-                <ul className="space-y-3 mb-6">
-                  {plan.caracteristicas.map((caracteristica, index) => (
-                    <li key={index} className="flex items-center text-gray-700 group/item">
-                      <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center mr-3 group-hover/item:scale-110 transition-transform duration-200">
-                        <svg
-                          className="w-3 h-3 text-green-600"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={3}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </div>
-                      <span className="text-sm">{caracteristica}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Precio Mejorado */}
-                <div className="mb-6 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200/50">
-                  <div className="text-3xl font-bold text-gray-800 mb-1">
-                    {plan.precio}
-                    <span className="text-sm font-normal text-gray-500">/mes</span>
-                  </div>
-                  <div className="text-sm text-gray-500">{plan.incluye}</div>
-                </div>
-
-                {/* Botón WhatsApp Mejorado */}
-                <button
-                  onClick={() => handleWhatsAppClick(plan.nombre)}
-                  className={`w-full bg-gradient-to-r ${getColorClasses(
-                    plan.color
-                  )} hover:shadow-xl text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-3 group/btn shadow-lg`}
-                >
-                  <svg
-                    className="w-5 h-5 group-hover/btn:scale-110 transition-transform duration-200"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893-.001-3.189-1.262-6.187-3.55-8.444" />
-                  </svg>
-                  <span className="group-hover/btn:translate-x-1 transition-transform duration-200">
-                    Consultar por WhatsApp
-                  </span>
-                </button>
-              </div>
-            </div>
+        {/* Tarjetas */}
+        <div ref={gridRef} className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {visibles.map((plan) => (
+            <PlanCard key={plan.id} plan={plan} onPreview={setPreview} />
           ))}
         </div>
 
-        {/* Nota adicional Mejorada */}
-        <div className="text-center mt-12 bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-200/80 shadow-lg">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4">
-            <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-            </svg>
-          </div>
-          <p className="text-gray-600 text-lg">
-            💡 <strong>¿No encuentras lo que buscas?</strong> Contáctanos para
-            un plan personalizado según tus necesidades específicas.
+        {/* Plan a medida */}
+        <a
+          data-reveal
+          href={whatsappLink("a medida")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group mt-16 flex flex-col gap-6 border-t border-line pt-10 md:flex-row md:items-center md:justify-between"
+        >
+          <p className="font-display text-2xl md:text-4xl font-semibold tracking-tight">
+            ¿No encuentras lo que buscas?{" "}
+            <span className="text-stone-400 transition-colors duration-500 group-hover:text-accent">
+              Armamos un plan a tu medida.
+            </span>
           </p>
-        </div>
+          <span className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full bg-ink text-white transition-all duration-500 group-hover:bg-accent group-hover:-rotate-45">
+            <FaArrowRight className="h-5 w-5" />
+          </span>
+        </a>
       </div>
 
-      {/* Modal para imagen ampliada */}
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 bg-black/95 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          onClick={closeImageModal}
+      {/* Modal del afiche */}
+      {preview && (
+        <div
+          ref={modalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Afiche del Plan ${preview.nombre}`}
+          className="fixed inset-0 z-[90] flex items-center justify-center p-4"
         >
-          <div className="relative max-w-4xl max-h-full">
-            {/* Botón cerrar mejorado */}
-            <button
-              onClick={closeImageModal}
-              className="absolute -top-16 right-0 text-white hover:text-gray-300 transition-colors duration-200 bg-black/50 rounded-full p-3 backdrop-blur-sm"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            
-            {/* Imagen */}
+          <div
+            data-modal-bg
+            className="absolute inset-0 bg-ink/90 backdrop-blur-sm"
+            onClick={closePreview}
+          />
+          <div data-modal-img className="relative max-w-3xl">
             <img
-              src={selectedImage.src}
-              alt={selectedImage.alt}
-              className="w-full h-auto max-h-[80vh] object-contain rounded-xl shadow-2xl"
+              src={preview.imagen}
+              alt={`Afiche del Plan ${preview.nombre}`}
+              className="max-h-[82vh] w-auto rounded-2xl object-contain"
             />
+            <button
+              onClick={closePreview}
+              aria-label="Cerrar"
+              className="absolute -top-3 -right-3 flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink shadow-lg transition-colors hover:bg-accent hover:text-white"
+            >
+              <FaTimes className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}
-
-      {/* Estilos para las animaciones de partículas */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0) rotate(0deg) translateX(0);
-          }
-          33% {
-            transform: translateY(-30px) rotate(120deg) translateX(10px);
-          }
-          66% {
-            transform: translateY(15px) rotate(240deg) translateX(-5px);
-          }
-        }
-        @keyframes float-slow {
-          0%, 100% {
-            transform: translateY(0) rotate(0deg) translateX(0);
-          }
-          33% {
-            transform: translateY(-20px) rotate(90deg) translateX(15px);
-          }
-          66% {
-            transform: translateY(10px) rotate(180deg) translateX(-10px);
-          }
-        }
-        @keyframes float-slower {
-          0%, 100% {
-            transform: translateY(0) rotate(0deg) translateX(0);
-          }
-          50% {
-            transform: translateY(-15px) rotate(60deg) translateX(8px);
-          }
-        }
-        .animate-float {
-          animation: float 20s infinite linear;
-        }
-        .animate-float-slow {
-          animation: float-slow 30s infinite linear;
-        }
-        .animate-float-slower {
-          animation: float-slower 40s infinite linear;
-        }
-      `}</style>
-    </div>
+    </section>
   );
 };
 
