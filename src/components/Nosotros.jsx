@@ -240,7 +240,7 @@ const Nosotros = ({ overlap = false }) => {
       ref={scope}
       className={`overflow-hidden bg-paper text-ink ${
         overlap
-          ? "relative z-10 -mt-[6vh] rounded-t-[2rem] md:rounded-t-[3rem] shadow-[0_-30px_80px_-20px_rgba(0,0,0,0.6)]"
+          ? "relative z-10 -mt-8 rounded-t-[2rem] md:rounded-t-[3rem] shadow-[0_-30px_80px_-20px_rgba(0,0,0,0.6)]"
           : ""
       }`}
     >

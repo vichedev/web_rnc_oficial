@@ -50,7 +50,7 @@ function Home() {
   return (
     <>
       <Hero />
-      <Nosotros overlap />
+      <Nosotros />
       <Planes />
       <SpeedCalc />
       <Proceso />

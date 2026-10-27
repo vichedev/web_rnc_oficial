@@ -7,9 +7,8 @@ import { gsap, useGSAP, prefersReducedMotion } from "../lib/gsap";
  * (túnel, cables, logo y partículas) convertido en una escena cinematográfica:
  *  1. Preloader con contador mientras cargan las capas.
  *  2. Intro: el túnel se enfoca, los cables entran y el título aparece letra a letra.
- *  3. Scroll: la escena se fija, viajamos por el túnel, los cables se conectan
- *     y estalla un destello de "conexión establecida".
- *  4. Mouse: cada capa se desplaza según su profundidad (parallax 3D real).
+ *  3. Mouse: cada capa se desplaza según su profundidad (parallax 3D real).
+ * Al hacer scroll no hay animación: la página baja de forma normal.
  * La versión original sigue disponible en HeroClassic.jsx.
  */
 
@@ -151,7 +150,7 @@ const WarpField = ({ speed }) => {
   return <canvas ref={ref} className="absolute inset-0 h-full w-full" aria-hidden="true" />;
 };
 
-/** Capa de la escena: el contenedor externo se anima con el scroll y el interno con el mouse. */
+/** Capa de la escena: el contenedor interno se desplaza con el mouse según su profundidad. */
 const Layer = ({ name, depth, children, className = "" }) => (
   <div data-layer={name} className={`absolute inset-0 ${className}`}>
     <div data-depth={depth} className="absolute -inset-[5%]">
@@ -189,7 +188,7 @@ const Hero = () => {
     { dependencies: [progress] }
   );
 
-  // Intro + escena con scroll + parallax con el mouse
+  // Intro + parallax con el mouse (al hacer scroll la página baja normal)
   useGSAP(
     () => {
       if (!ready) return;
@@ -232,74 +231,9 @@ const Hero = () => {
         .fromTo(speed.current, { intro: 14 }, { intro: 1, duration: 3, ease: "power2.out" }, skipLoader ? 0 : 1.4);
       introPlayed = true;
 
-      // ---------- 2. Escena fija con scroll ----------
-      const scene = gsap.timeline({
-        defaults: { ease: "none", duration: 1 },
-        scrollTrigger: {
-          trigger: root.current,
-          start: "top top",
-          end: "+=200%",
-          scrub: 1,
-          pin: true,
-          anticipatePin: 1,
-        },
-      });
-      scene
-        .to(q("[data-layer='tunnel']"), { scale: 2.7, rotate: 30, ease: "power1.inOut", duration: 1.25 }, 0)
-        .to(q("[data-layer='cable-top']"), { xPercent: 24, yPercent: 20, ease: "power1.in", duration: 0.78 }, 0)
-        .to(q("[data-layer='cable-bottom']"), { xPercent: -8, yPercent: -24, ease: "power1.in", duration: 0.78 }, 0)
-        .to(q("[data-layer='bokeh']"), { scale: 2.2, opacity: 0, ease: "power1.in", duration: 0.7 }, 0)
-        .to(q("[data-layer='logo']"), { scale: 1.45 }, 0)
-        .to(q("[data-title]"), { yPercent: -60, opacity: 0, filter: "blur(14px)", ease: "power1.in", duration: 0.4 }, 0)
-        .to(q("[data-hud]"), { opacity: 0, duration: 0.2 }, 0)
-        .to(speed.current, { scroll: 10, ease: "power2.in", duration: 0.8 }, 0)
-        // ¡Conexión! — destello, onda expansiva y aparición del logo
-        .fromTo(q("[data-flash]"), { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1.6, duration: 0.08, ease: "power2.out" }, 0.74)
-        .to(q("[data-layer='logo']"), { opacity: 0, duration: 0.06 }, 0.77)
-        .to(q("[data-scene]"), { opacity: 0.22, duration: 0.4, ease: "power1.inOut" }, 0.7)
-        .fromTo(
-          q("[data-ring]"),
-          { scale: 0.2, opacity: 1 },
-          // immediateRender: false → no se ve nada hasta que llega la explosión
-          { scale: 4.5, opacity: 0, duration: 0.12, ease: "power2.out", stagger: 0.03, immediateRender: false },
-          0.78
-        )
-        .fromTo(
-          q("[data-finale-glow]"),
-          { opacity: 0, scale: 0.4 },
-          { opacity: 1, scale: 1, duration: 0.16, ease: "power2.out" },
-          0.8
-        )
-        .fromTo(
-          q("[data-finale-logo]"),
-          { opacity: 0, scale: 0.55, y: 30, filter: "blur(18px)" },
-          { opacity: 1, scale: 1, y: 0, filter: "blur(0px)", duration: 0.16, ease: "back.out(1.6)" },
-          0.8
-        )
-        .to(q("[data-flash]"), { opacity: 0, duration: 0.14 }, 0.84)
-        .to(speed.current, { scroll: 1.5, duration: 0.2 }, 0.8)
-        .fromTo(q("[data-connected]"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.08, ease: "power2.out" }, 0.9)
-        // Pausa para disfrutar el logo antes de continuar
-        .to({}, { duration: 0.25 }, 1);
+      const cleanups = [];
 
-      // ---------- 3. Salida suave hacia la siguiente sección ----------
-      const next = document.getElementById("nosotros");
-      if (next) {
-        gsap.fromTo(
-          q("[data-stage]"),
-          { scale: 1, yPercent: 0, opacity: 1, borderRadius: 0 },
-          {
-            scale: 0.88,
-            yPercent: 38,
-            opacity: 0.3,
-            borderRadius: 40,
-            ease: "none",
-            scrollTrigger: { trigger: next, start: "top bottom", end: "top top", scrub: true },
-          }
-        );
-      }
-
-      // ---------- 4. Parallax con el mouse ----------
+      // ---------- 2. Parallax con el mouse ----------
       if (window.matchMedia("(hover: hover)").matches) {
         const movers = q("[data-depth]").map((el) => ({
           depth: parseFloat(el.dataset.depth),
@@ -315,8 +249,10 @@ const Hero = () => {
           });
         };
         window.addEventListener("mousemove", onMove);
-        return () => window.removeEventListener("mousemove", onMove);
+        cleanups.push(() => window.removeEventListener("mousemove", onMove));
       }
+
+      return () => cleanups.forEach((fn) => fn());
     },
     { scope: root, dependencies: [ready] }
   );
@@ -328,7 +264,7 @@ const Hero = () => {
       aria-label="Red Nueva Conexión"
       className="relative h-[100svh] min-h-[560px] overflow-hidden bg-ink text-white"
     >
-      <div data-stage className="absolute inset-0 origin-top overflow-hidden will-change-transform">
+      <div className="absolute inset-0 overflow-hidden">
       <div data-scene className="absolute inset-0">
         {/* 1. Túnel */}
         <Layer name="tunnel" depth={14}>
@@ -402,17 +338,6 @@ const Hero = () => {
         className="pointer-events-none absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-ink/90 via-ink/40 to-transparent"
       />
 
-      {/* Destello de conexión */}
-      <div
-        data-flash
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[120vmax] w-[120vmax] -ml-[60vmax] -mt-[60vmax] rounded-full opacity-0 mix-blend-screen"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(253,186,116,0.85) 8%, rgba(249,115,22,0.55) 22%, rgba(59,130,246,0.18) 42%, transparent 62%)",
-        }}
-      />
-
       {/* Título + detalles inferiores en una misma columna (nunca se superponen) */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-col items-center gap-[clamp(1.25rem,4vh,3rem)] px-5 pb-[clamp(1.25rem,3.5vh,2rem)] md:px-8">
         {/* Título */}
@@ -450,7 +375,7 @@ const Hero = () => {
             <p className="mt-1">Puebloviejo, Ecuador</p>
           </div>
           <div data-hero-fade className="flex flex-col items-center gap-3">
-            <span className="text-white/85">Desliza para conectar</span>
+            <span className="text-white/85">Desliza para ver más</span>
             <span className="relative block h-8 w-px overflow-hidden bg-white/20">
               <span className="absolute inset-x-0 top-0 h-1/2 animate-[scroll-hint_1.8s_ease-in-out_infinite] bg-accent" />
             </span>
@@ -461,40 +386,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-
-      {/* Final de la escena: logo de Red Nueva Conexión */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 pt-10">
-        {[0, 1].map((i) => (
-          <span
-            key={i}
-            data-ring
-            aria-hidden="true"
-            className="absolute h-[34vmin] w-[34vmin] rounded-full border-2 border-accent/80 opacity-0 shadow-[0_0_40px_rgba(249,115,22,0.6)]"
-          />
-        ))}
-        <span
-          data-finale-glow
-          aria-hidden="true"
-          className="absolute h-[70vmin] w-[70vmin] rounded-full bg-[radial-gradient(circle,rgba(249,115,22,0.45)_0%,rgba(59,130,246,0.15)_45%,transparent_70%)] opacity-0"
-        />
-        <img
-          data-finale-logo
-          src="/images/logo.png"
-          alt="Red Nueva Conexión — Conectándote al mundo"
-          decoding="async"
-          className="relative w-[min(82vw,88vh,620px)] opacity-0 drop-shadow-[0_25px_60px_rgba(0,0,0,0.65)]"
-        />
-        <div data-connected className="relative mt-[clamp(1.25rem,4vh,2.5rem)] opacity-0">
-          <span className="flex items-center gap-3 rounded-full border border-white/20 bg-ink/50 px-5 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-white backdrop-blur-md">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-            </span>
-            Conexión establecida
-          </span>
-        </div>
-      </div>
-
       </div>
 
       {/* Preloader (en un portal para quedar por encima de todo, incluido el nav) */}

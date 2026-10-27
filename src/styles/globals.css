@@ -88,9 +88,8 @@ body {
 }
 
 /* Smooth scrolling para mejor experiencia */
-html {
-  scroll-behavior: smooth;
-}
+/* Sin scroll-behavior: smooth global: interfiere con el scroll animado de GSAP.
+   Los desplazamientos suaves se hacen desde JS (behavior: "smooth"). */
 
 /* Nunca mostrar scroll horizontal (las capas del hero y la escena fija
    pueden medir unos píxeles más que la página al aparecer la barra vertical) */

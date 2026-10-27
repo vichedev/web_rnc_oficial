@@ -17,7 +17,6 @@ import {
   FaArrowRight,
 } from "react-icons/fa";
 import { gsap, useGSAP, prefersReducedMotion } from "../lib/gsap";
-import Magnetic from "./ui/Magnetic";
 
 const WHATSAPP_URL =
   "https://api.whatsapp.com/send?phone=59343755230&text=Hola%2C%20quiero%20contratar%20internet%20con%20RNC";
@@ -40,7 +39,6 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [overDark, setOverDark] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [activeSection, setActiveSection] = useState("inicio");
   const location = useLocation();
   const navigate = useNavigate();
@@ -55,14 +53,11 @@ const Navbar = () => {
 
   // Estado según el scroll
   useEffect(() => {
-    let lastY = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 40);
       const hero = document.getElementById("inicio");
       setOverDark(isHome && !!hero && hero.getBoundingClientRect().bottom > 90);
-      setHidden(y > 400 && y > lastY);
-      lastY = y;
 
       if (isHome) {
         let current = "inicio";
@@ -138,18 +133,6 @@ const Navbar = () => {
       );
     },
     { scope: headerRef, dependencies: [location.pathname], revertOnUpdate: true }
-  );
-
-  // Ocultar al bajar, mostrar al subir
-  useGSAP(
-    () => {
-      gsap.to(headerRef.current, {
-        yPercent: hidden && !isMenuOpen ? -100 : 0,
-        duration: 0.6,
-        ease: "power3.out",
-      });
-    },
-    { dependencies: [hidden, isMenuOpen] }
   );
 
   // Menú móvil
@@ -336,7 +319,6 @@ const Navbar = () => {
                 <span className="hidden xl:inline">Test de velocidad</span>
               </a>
               <div data-nav-item className="hidden sm:block">
-                <Magnetic>
                   <a
                     href={WHATSAPP_URL}
                     target="_blank"
@@ -347,7 +329,6 @@ const Navbar = () => {
                     <FaWhatsapp className="relative h-4 w-4" />
                     <span className="relative">Contratar</span>
                   </a>
-                </Magnetic>
               </div>
 
               <button
